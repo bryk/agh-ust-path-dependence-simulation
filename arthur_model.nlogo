@@ -1,4 +1,7 @@
-globals[na nb missfits]
+; patches are domains
+; turtles are components
+
+globals[na nb missfits currNumDomains currNumComponents]
 to go
   if ticks >= ticksCount [ stop ]
   ifelse random 2 = 1 [
@@ -27,8 +30,47 @@ to agentS
   ]
 end
 
+
+to activateDomain
+  ifelse currNumDomains < numDomains and pcolor = black [
+    set currNumDomains currNumDomains + 1
+    set pcolor yellow
+    ask turtle currNumComponents [
+      setxy [pxcor] of myself [pycor] of myself
+      set color blue
+    ]
+    set currNumComponents currNumComponents + 1
+    ask turtle currNumComponents [
+      setxy [pxcor] of myself [pycor] of myself
+      set color green
+    ]
+    set currNumComponents currNumComponents + 1
+  ] [ 
+    ; do nothing
+  ]
+end
+
+to tryActivateDomainNeighbours
+  ifelse pcolor = yellow [
+    set pcolor red
+    ask neighbors4 [activateDomain]
+    ask neighbors4 [tryActivateDomainNeighbours]
+  ] [ 
+    ; do nothing
+  ]
+end
+
 to setup
+  clear-all
   clear-all-plots
+  set currNumDomains 0
+  ifelse twoComponentsPerDomain [
+    create-turtles numDomains * 2
+    ask patch 0 0 [activateDomain]
+    ask patch 0 0 [tryActivateDomainNeighbours]
+  ] [
+  
+  ]
   set na 0
   set nb 0
   set missfits 0
@@ -38,11 +80,11 @@ end
 GRAPHICS-WINDOW
 210
 10
-649
-470
-16
-16
-13.0
+640
+461
+10
+10
+20.0
 1
 10
 1
@@ -52,15 +94,15 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
--16
-16
+-10
+10
+-10
+10
 0
 0
 1
 ticks
-30.0
+10.0
 
 SLIDER
 24
@@ -216,6 +258,47 @@ nb
 17
 1
 11
+
+SLIDER
+26
+221
+198
+254
+numDomains
+numDomains
+1
+100
+24
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+25
+266
+204
+299
+numComponents
+numComponents
+2
+100
+2
+1
+1
+NIL
+HORIZONTAL
+
+SWITCH
+25
+308
+276
+341
+twoComponentsPerDomain
+twoComponentsPerDomain
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
