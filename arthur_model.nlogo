@@ -1,87 +1,160 @@
 ; patches are domains
 ; turtles are components
 
-globals[na nb missfits currNumDomains currNumComponents]
+turtles-own [technologyId activated value]
+patches-own [on]
+
+globals[missfits currNumDomains currNumComponents adopters colorsList numTechnologies]
 to go
   if ticks >= ticksCount [ stop ]
   ifelse random 2 = 1 [
-    agentR
+    ;; TODO: Do not hardcode ar as
+    genericAgent (list aR aS) networkInfluence 0
   ] [
-    agentS
+    ;; TODO: Do not hardcode ar as
+    genericAgent (list aS aR) networkInfluence 1
   ]
   tick
 end
 
-to agentR 
-  ifelse aR + rs * na > 1 - aR + rs * nb [
-    set na na + 1
-  ] [
-    set missfits missfits + 1 
-    set nb nb + 1
+;; Updates and returns the given totalValues list for the current domain.
+;; totalValues list contains the sum of values of components
+to-report updateTotalValuesForDomain [totalValues]
+  ask turtles-here [
+    set totalValues replace-item technologyId totalValues ((item technologyId totalValues) + value)
+  ]
+  report totalValues
+end
+
+;; Changes domain's color to the same as dominating technology has.
+to updateDominatingTechnology [domain]
+  let totalValues n-values numTechnologies [0]
+  ask domain [
+    set totalValues (updateTotalValuesForDomain totalValues)
+  ]
+  
+  let maxVal -1
+  let maxTechnologyId 0
+  let currentTechnologyId 0
+  foreach totalValues [
+    if ? > maxVal [
+      set maxVal ? 
+      set maxTechnologyId currentTechnologyId
+    ]
+    set currentTechnologyId currentTechnologyId + 1
+  ]
+  
+  ask domain [
+    set pcolor item maxTechnologyId colorsList 
   ]
 end
 
-to agentS
-  ifelse aS + rs * na > 1 - aS + rs * nb [
+to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnologyId]
+  let domain one-of patches with [on = true] ;; Pick a domain at random.
+  
+  ;; Sum values of neighbour components.
+  let totalValues n-values numTechnologies [0]
+  ask domain [
+    set totalValues (updateTotalValuesForDomain totalValues)
+    ask neighbors4 [
+      set totalValues (updateTotalValuesForDomain totalValues)
+    ]
+  ]
+  
+  ;; Compute utility function.
+  let maxUtilityFun -1
+  let maxTechnologyId 0
+  let currentTechnologyId 0
+  foreach totalValues [
+    ;; TODO: Take setup cost into account.
+    let utilityFun ((item currentTechnologyId technologyPreferences) + agentNetworkInfluence * ?)
+    if utilityfun > maxUtilityFun [
+      set maxUtilityFun utilityFun 
+      set maxTechnologyId currentTechnologyId
+    ]  
+    set currentTechnologyId currentTechnologyId + 1
+  ]
+  
+  ;; Implement demand using selected component.
+  ask domain [
+    ask one-of turtles-here with [technologyId = maxTechnologyId] [
+      ;; TODO: Set up component.
+      set value value + 1
+    ]
+  ]
+   
+  updateDominatingTechnology domain
+  
+  ;; Update simulation statistics.
+  set adopters replace-item maxTechnologyId adopters ((item maxTechnologyId adopters) + 1)
+  if preferredTechnologyId != maxTechnologyId [
     set missfits missfits + 1 
-    set na na + 1
-  ] [
-    set nb nb + 1
   ]
 end
 
+;; Adds a component to the current domain. The component will have technologyId equals to
+;; componentTechnologyId param.
+to addComponentToDomain [componentTechnologyId] 
+  ask turtle currNumComponents [
+    setxy [pxcor] of myself [pycor] of myself
+    set color ((item componentTechnologyId colorsList) + 1)
+    set technologyId componentTechnologyId
+  ]
+  set currNumComponents currNumComponents + 1
+end
 
-to activateDomain
-  ifelse currNumDomains < numDomains and pcolor = black [
+;; Tries to select the current domain for the simulation.
+;; tryTurnOnDomain must be called for the current domain after this procedure finishes.
+;; Domains have colors:
+;; * black - not (yet) selected for this simulation
+;; * yellow - selected for this silumation, will be turned on in tryTurnOnDomain
+to trySelectDomainForSimulation
+  if currNumDomains < numDomains and pcolor = black [
     set currNumDomains currNumDomains + 1
     set pcolor yellow
-    ask turtle currNumComponents [
-      setxy [pxcor] of myself [pycor] of myself
-      set color blue
-    ]
-    set currNumComponents currNumComponents + 1
-    ask turtle currNumComponents [
-      setxy [pxcor] of myself [pycor] of myself
-      set color green
-    ]
-    set currNumComponents currNumComponents + 1
-  ] [ 
-    ; do nothing
+    ;; TODO: Do not assume that there are always two components per domain.
+    addComponentToDomain 0
+    addComponentToDomain 1
   ]
 end
 
-to tryActivateDomainNeighbours
-  ifelse pcolor = yellow [
-    set pcolor red
-    ask neighbors4 [activateDomain]
-    ask neighbors4 [tryActivateDomainNeighbours]
-  ] [ 
-    ; do nothing
+;; Tries to turn on the current domain
+to tryTurnOnDomain
+  if pcolor = yellow and on = false [
+    set on true
+    ask neighbors4 [trySelectDomainForSimulation]
+    ask neighbors4 [tryTurnOnDomain]
   ]
 end
 
 to setup
   clear-all
   clear-all-plots
+  ask patches [set on false]
+  set numTechnologies 2 ;; TODO: Do not assume this.
+  set adopters n-values numTechnologies [0]
+  set colorsList [blue green] ; technology 0 is blue and technology 1 is green
   set currNumDomains 0
-  ifelse twoComponentsPerDomain [
-    create-turtles numDomains * 2
-    ask patch 0 0 [activateDomain]
-    ask patch 0 0 [tryActivateDomainNeighbours]
-  ] [
-  
-  ]
-  set na 0
-  set nb 0
   set missfits 0
+  
+  create-turtles numDomains * numComponentsPerDomain
+  ask turtles [
+    set activated false
+    set technologyId -1
+    set value 0
+  ]
+  
+  ;; Initializa components.
+  ask patch 0 0 [trySelectDomainForSimulation]
+  ask patch 0 0 [tryTurnOnDomain]
   reset-ticks
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
-10
-640
-461
+293
+40
+723
+491
 10
 10
 20.0
@@ -102,7 +175,7 @@ GRAPHICS-WINDOW
 0
 1
 ticks
-10.0
+30.0
 
 SLIDER
 24
@@ -111,7 +184,7 @@ SLIDER
 78
 aR
 aR
-0.5
+0.0
 1
 0.8
 0.1
@@ -127,7 +200,7 @@ SLIDER
 aS
 aS
 0
-0.5
+1.0
 0.2
 0.1
 1
@@ -142,9 +215,9 @@ SLIDER
 ticksCount
 ticksCount
 0
-5000
-1051
-1
+3000
+1000
+50
 1
 NIL
 HORIZONTAL
@@ -186,10 +259,10 @@ NIL
 SLIDER
 24
 178
-196
+199
 211
-rs
-rs
+networkInfluence
+networkInfluence
 0
 1
 0.1
@@ -214,8 +287,8 @@ true
 true
 "" ""
 PENS
-"Technology A adoption" 1.0 0 -14333415 true "" "ifelse ticks > 0 [plot na / ticks] [plot 0.5]"
-"Technology B adoption" 1.0 0 -14454117 true "" "ifelse ticks > 0 [plot nb / ticks] [plot 0.5]"
+"Technology A adoption" 1.0 0 -13345367 true "" "ifelse ticks > 0 [plot item 0 adopters / ticks] [plot 0.5]"
+"Technology B adoption" 1.0 0 -10899396 true "" "ifelse ticks > 0 [plot item 1 adopters / ticks] [plot 0.5]"
 "Misfit ratio" 1.0 0 -5298144 true "" "ifelse ticks > 0 [plot missfits / ticks] [plot 0.5]"
 
 PLOT
@@ -234,8 +307,8 @@ true
 true
 "" ""
 PENS
-"Technology A" 1.0 0 -14333415 true "" "plot na"
-"Technology B" 1.0 0 -14985354 true "" "plot nb"
+"Technology A" 1.0 0 -13345367 true "" "plot item 0 adopters"
+"Technology B" 1.0 0 -10899396 true "" "plot item 1 adopters"
 
 MONITOR
 594
@@ -243,7 +316,7 @@ MONITOR
 725
 666
 Num technology A
-na
+item 0 adopters
 17
 1
 11
@@ -254,51 +327,40 @@ MONITOR
 726
 719
 Num technology B
-nb
+item 1 adopters
 17
 1
 11
 
 SLIDER
-26
-221
-198
-254
-numDomains
-numDomains
-1
+28
+274
+235
+307
+numComponentsPerDomain
+numComponentsPerDomain
+2
 100
-24
+2
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-25
-266
-204
-299
-numComponents
-numComponents
-2
-100
-2
+27
+226
+199
+259
+numDomains
+numDomains
+1
+50
+5
 1
 1
 NIL
 HORIZONTAL
-
-SWITCH
-25
-308
-276
-341
-twoComponentsPerDomain
-twoComponentsPerDomain
-0
-1
--1000
 
 @#$#@#$#@
 ## WHAT IS IT?
