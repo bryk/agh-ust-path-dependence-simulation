@@ -63,10 +63,10 @@ ticks
 30.0
 
 SLIDER
-28
-38
-200
-71
+24
+45
+196
+78
 aR
 aR
 0.5
@@ -78,10 +78,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-29
-88
-201
-121
+24
+91
+196
+124
 aS
 aS
 0
@@ -93,10 +93,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-39
-152
-211
-185
+24
+133
+196
+166
 ticksCount
 ticksCount
 0
@@ -142,10 +142,10 @@ NIL
 1
 
 SLIDER
-35
-195
-207
-228
+24
+178
+196
+211
 rs
 rs
 0
@@ -194,6 +194,28 @@ true
 PENS
 "Technology A" 1.0 0 -14333415 true "" "plot na"
 "Technology B" 1.0 0 -14985354 true "" "plot nb"
+
+MONITOR
+594
+621
+725
+666
+Num technology A
+na
+17
+1
+11
+
+MONITOR
+594
+674
+726
+719
+Num technology B
+nb
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
