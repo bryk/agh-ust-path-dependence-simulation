@@ -101,7 +101,7 @@ ticksCount
 ticksCount
 0
 5000
-1000
+1051
 1
 1
 NIL
@@ -159,22 +159,41 @@ HORIZONTAL
 PLOT
 736
 42
-1190
+1554
 429
-plot 1
+Model statistics
 NIL
 NIL
 0.0
 1000.0
 0.0
 1.0
-false
-false
+true
+true
 "" ""
 PENS
-"techA" 1.0 0 -14333415 true "" "ifelse ticks > 0 [plot na / ticks] [plot 0.5]"
-"techB" 1.0 0 -14454117 true "" "ifelse ticks > 0 [plot nb / ticks] [plot 0.5]"
-"pen-2" 1.0 0 -5298144 true "" "ifelse ticks > 0 [plot missfits / ticks] [plot 0.5]"
+"Technology A adoption" 1.0 0 -14333415 true "" "ifelse ticks > 0 [plot na / ticks] [plot 0.5]"
+"Technology B adoption" 1.0 0 -14454117 true "" "ifelse ticks > 0 [plot nb / ticks] [plot 0.5]"
+"Misfit ratio" 1.0 0 -5298144 true "" "ifelse ticks > 0 [plot missfits / ticks] [plot 0.5]"
+
+PLOT
+736
+430
+1555
+719
+Number of agents using technology
+NIL
+NIL
+0.0
+1000.0
+0.0
+10.0
+true
+true
+"" ""
+PENS
+"Technology A" 1.0 0 -14333415 true "" "plot na"
+"Technology B" 1.0 0 -14985354 true "" "plot nb"
 
 @#$#@#$#@
 ## WHAT IS IT?
