@@ -4,15 +4,24 @@
 turtles-own [technologyId activated value]
 patches-own [on]
 
-globals[missfits currNumDomains currNumComponents adopters colorsList numTechnologies]
+globals[missfits currNumDomains currNumComponents adopters colorsList numTechnologies demands]
 to go
+  set missfits 0
+  set adopters [0 0]
+  ask turtles [
+    ; set value 0
+  ]
   if ticks >= ticksCount [ stop ]
   ifelse random 2 = 1 [
+    set demands lput (list aR aS networkInfluence 0 one-of patches with [on = true]) demands
     ;; TODO: Do not hardcode ar as
-    genericAgent (list aR aS) networkInfluence 0
   ] [
+    set demands lput (list aS aR networkInfluence 1 one-of patches with [on = true]) demands
     ;; TODO: Do not hardcode ar as
-    genericAgent (list aS aR) networkInfluence 1
+  ]
+  ;; set demands shuffle demands;
+  foreach demands [
+    genericAgent (list (item 0 ?) (item 1 ?)) (item 2 ?) (item 3 ?) (item 4 ?)
   ]
   tick
 end
@@ -49,8 +58,8 @@ to updateDominatingTechnology [domain]
   ]
 end
 
-to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnologyId]
-  let domain one-of patches with [on = true] ;; Pick a domain at random.
+to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnologyId domain]
+  ;; let domain one-of patches with [on = true] ;; Pick a domain at random.
   
   ;; Sum values of neighbour components.
   let totalValues n-values numTechnologies [0]
@@ -60,6 +69,7 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
       set totalValues (updateTotalValuesForDomain totalValues)
     ]
   ]
+  ;;show totalValues;
   
   ;; Compute utility function.
   let maxUtilityFun -1
@@ -68,10 +78,11 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
   foreach totalValues [
     ;; TODO: Take setup cost into account.
     let utilityFun ((item currentTechnologyId technologyPreferences) + agentNetworkInfluence * ?)
-    if utilityfun > maxUtilityFun [
+    if utilityfun > maxUtilityFun or (utilityFun = maxUtilityFun and currentTechnologyId = preferredTechnologyId) [
       set maxUtilityFun utilityFun 
       set maxTechnologyId currentTechnologyId
-    ]  
+    ]
+    ;; show utilityFun;
     set currentTechnologyId currentTechnologyId + 1
   ]
   
@@ -136,6 +147,7 @@ to setup
   set colorsList [blue green] ; technology 0 is blue and technology 1 is green
   set currNumDomains 0
   set missfits 0
+  set demands [];
   
   create-turtles numDomains * numComponentsPerDomain
   ask turtles [
@@ -216,7 +228,7 @@ ticksCount
 ticksCount
 0
 3000
-1000
+850
 50
 1
 NIL
@@ -259,14 +271,14 @@ NIL
 SLIDER
 24
 178
-199
+209
 211
 networkInfluence
 networkInfluence
 0
 1
 0.1
-0.1
+0.01
 1
 NIL
 HORIZONTAL
@@ -356,7 +368,7 @@ numDomains
 numDomains
 1
 50
-5
+25
 1
 1
 NIL
