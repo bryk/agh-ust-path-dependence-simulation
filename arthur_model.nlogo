@@ -68,7 +68,7 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
   foreach totalValues [
     ;; TODO: Take setup cost into account.
     let utilityFun ((item currentTechnologyId technologyPreferences) + agentNetworkInfluence * ?)
-    if utilityfun > maxUtilityFun [
+    if utilityfun > maxUtilityFun or (utilityFun = maxUtilityFun and random 2 = 1) [
       set maxUtilityFun utilityFun 
       set maxTechnologyId currentTechnologyId
     ]  
