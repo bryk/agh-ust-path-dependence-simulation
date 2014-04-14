@@ -79,7 +79,14 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
   ask domain [
     ask one-of turtles-here with [technologyId = maxTechnologyId] [
       ;; TODO: Set up component.
+    ]
+    ask turtles-here with [technologyId = maxTechnologyId] [
       set value value + 1
+    ]
+    ask neighbors4 [
+      ask turtles-here with [technologyId = maxTechnologyId] [
+        set value value + 1
+      ]
     ]
   ]
    

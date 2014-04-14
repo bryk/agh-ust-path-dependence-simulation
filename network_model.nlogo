@@ -1,18 +1,18 @@
-globals[na nb missfits technologiesQuantity linkProbability firstTechnology secondTechnology]
-turtles-own [technologyId activated value]
+globals[misfits technologiesQuantity linkProbability firstTechnology secondTechnology]
+turtles-own [technologyId activated value] ;; Turtles - domain.
 
 to go
   if ticks >= ticksCount [ stop ]
   ifelse random 2 = 1 [
-    genericAgent (list aR aS) rs
+    genericAgent (list aR aS) rs 0
   ] [
-    genericAgent (list aS aR) rs
+    genericAgent (list aS aR) rs 1
   ]
   setupPlotData
   tick
 end
 
-to genericAgent [technologyPreferences agentNetworkInfluence]
+to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnologyId]
   let bestComponent -1
   let bestUtility -1
   ask turtles [
@@ -27,13 +27,16 @@ to genericAgent [technologyPreferences agentNetworkInfluence]
     ]
     set utility utility * agentNetworkInfluence
     set utility utility + (item thatTechnologyId technologyPreferences)
-    if utility > bestUtility [
+    if utility > bestUtility or (utility = bestUtility and random 2 = 1) [
       set bestUtility utility
       set bestComponent that
     ]
   ]
   ask turtle bestComponent [
     set value value + 1
+    if technologyId != preferredTechnologyId [
+      set misfits misfits + 1 
+    ]
   ]
 end
 
@@ -46,10 +49,8 @@ to setup
   clear-all
   clear-all-plots
   set linkProbability 0.1   ;; can be set in GUI
-  set na 0
-  set nb 0
   set technologiesQuantity 2
-  set missfits 0
+  set misfits 0
   create-turtles componentsQuantity
   ask turtles [
     set activated false
@@ -73,13 +74,13 @@ to setup
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-277
-13
-716
-473
-16
-16
-13.0
+269
+10
+889
+651
+30
+30
+10.0
 1
 10
 1
@@ -89,12 +90,12 @@ GRAPHICS-WINDOW
 1
 1
 1
--16
-16
--16
-16
-0
-0
+-30
+30
+-30
+30
+1
+1
 1
 ticks
 30.0
@@ -130,10 +131,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-39
-152
-211
-185
+29
+134
+201
+167
 ticksCount
 ticksCount
 0
@@ -145,10 +146,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-141
-436
-204
-469
+134
+375
+197
+408
 NIL
 go
 T
@@ -162,10 +163,10 @@ NIL
 0
 
 BUTTON
-58
-435
-131
-468
+46
+374
+119
+407
 NIL
 setup
 NIL
@@ -179,10 +180,10 @@ NIL
 1
 
 SLIDER
-35
-195
-207
-228
+29
+183
+201
+216
 rs
 rs
 0
@@ -194,10 +195,10 @@ NIL
 HORIZONTAL
 
 PLOT
-736
-42
-1190
-429
+892
+10
+1346
+397
 plot 1
 NIL
 NIL
@@ -205,33 +206,34 @@ NIL
 1000.0
 0.0
 1.0
-false
-false
+true
+true
 "" ""
 PENS
 "techA" 1.0 0 -9276814 true "" "ifelse ticks > 0 [plot firstTechnology / ticks] [plot 0.5]"
 "techB" 1.0 0 -5298144 true "" "ifelse ticks > 0 [plot secondTechnology / ticks] [plot 0.5]"
+"Misfits" 1.0 0 -7500403 true "" "ifelse ticks > 0 [plot misfits / ticks] [plot 0.5]"
 
 SLIDER
-11
-251
-217
-284
+-2
+226
+204
+259
 componentsQuantity
 componentsQuantity
 2
 100
-30
+77
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-45
-311
-217
-344
+33
+274
+205
+307
 w1
 w1
 0
@@ -243,10 +245,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-56
-372
-228
-405
+33
+318
+205
+351
 w2
 w2
 0
