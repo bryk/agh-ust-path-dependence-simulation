@@ -46,6 +46,7 @@ to updateDominatingTechnology [domain]
   
   ask domain [
     set pcolor item maxTechnologyId colorsList 
+    set plabel totalValues
   ]
 end
 
@@ -62,12 +63,21 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
   ]
   
   ;; Compute utility function.
-  let maxUtilityFun -1
+  let maxUtilityFun -10000
   let maxTechnologyId 0
   let currentTechnologyId 0
   foreach totalValues [
     ;; TODO: Take setup cost into account.
+    let hasActiveComponent false
+    ask domain [
+      ask turtles-here with [technologyId = currentTechnologyId and activated = true] [
+        set hasActiveComponent true
+      ]
+    ]
     let utilityFun ((item currentTechnologyId technologyPreferences) + agentNetworkInfluence * ?)
+    if not hasActiveComponent [
+      set utilityFun utilityFun - setupCost; 
+    ]
     if utilityfun > maxUtilityFun or (utilityFun = maxUtilityFun and random 2 = 1) [
       set maxUtilityFun utilityFun 
       set maxTechnologyId currentTechnologyId
@@ -78,7 +88,7 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
   ;; Implement demand using selected component.
   ask domain [
     ask one-of turtles-here with [technologyId = maxTechnologyId] [
-      ;; TODO: Set up component.
+      set activated true
     ]
     ask turtles-here with [technologyId = maxTechnologyId] [
       set value value + 1
@@ -151,20 +161,20 @@ to setup
     set value 0
   ]
   
-  ;; Initializa components.
+  ;; Initialize components.
   ask patch 0 0 [trySelectDomainForSimulation]
   ask patch 0 0 [tryTurnOnDomain]
   reset-ticks
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-293
-40
-723
-491
+228
+10
+1078
+881
 10
 10
-20.0
+40.0
 1
 10
 1
@@ -279,10 +289,10 @@ NIL
 HORIZONTAL
 
 PLOT
-736
-42
-1554
-429
+1082
+16
+1900
+403
 Model statistics
 NIL
 NIL
@@ -299,10 +309,10 @@ PENS
 "Misfit ratio" 1.0 0 -5298144 true "" "ifelse ticks > 0 [plot missfits / ticks] [plot 0.5]"
 
 PLOT
-736
-430
-1555
-719
+1082
+404
+1901
+693
 Number of agents using technology
 NIL
 NIL
@@ -318,10 +328,10 @@ PENS
 "Technology B" 1.0 0 -10899396 true "" "plot item 1 adopters"
 
 MONITOR
-594
-621
-725
-666
+1089
+701
+1220
+746
 Num technology A
 item 0 adopters
 17
@@ -329,10 +339,10 @@ item 0 adopters
 11
 
 MONITOR
-594
-674
-726
-719
+1089
+754
+1221
+799
 Num technology B
 item 1 adopters
 17
@@ -363,8 +373,23 @@ numDomains
 numDomains
 1
 50
-5
 1
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+28
+326
+200
+359
+setupCost
+setupCost
+0
+10
+0
+0.1
 1
 NIL
 HORIZONTAL

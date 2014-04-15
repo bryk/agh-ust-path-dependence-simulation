@@ -199,7 +199,7 @@ PLOT
 10
 1346
 397
-plot 1
+Technology adoption
 NIL
 NIL
 0.0
@@ -212,7 +212,7 @@ true
 PENS
 "techA" 1.0 0 -9276814 true "" "ifelse ticks > 0 [plot firstTechnology / ticks] [plot 0.5]"
 "techB" 1.0 0 -5298144 true "" "ifelse ticks > 0 [plot secondTechnology / ticks] [plot 0.5]"
-"Misfits" 1.0 0 -7500403 true "" "ifelse ticks > 0 [plot misfits / ticks] [plot 0.5]"
+"Misfits" 1.0 0 -1184463 true "" "ifelse ticks > 0 [plot misfits / ticks] [plot 0.5]"
 
 SLIDER
 -2
