@@ -15,21 +15,24 @@ end
 to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnologyId]
   let bestComponent -1
   let bestUtility -1
-  ask turtles [
-    let thatTechnologyId technologyId
-    let that who
-    let utility 0
-    ask turtles with [technologyId = thatTechnologyId and who != that] [
-      set utility utility + w2 * value
-    ]
-    ask link-neighbors [
-      set utility utility + (w1 - w2) * value
-    ]
-    set utility utility * agentNetworkInfluence
-    set utility utility + (item thatTechnologyId technologyPreferences)
-    if utility > bestUtility or (utility = bestUtility and random 2 = 1) [
-      set bestUtility utility
-      set bestComponent that
+  let choosenComponents chooseComponents
+  foreach choosenComponents [
+    ask turtle ? [
+      let thatTechnologyId technologyId
+      let that who
+      let utility 0
+      ask turtles with [technologyId = thatTechnologyId and who != that] [
+        set utility utility + w2 * value
+      ]
+      ask link-neighbors [
+        set utility utility + (w1 - w2) * value
+      ]
+      set utility utility * agentNetworkInfluence
+      set utility utility + (item thatTechnologyId technologyPreferences)
+      if utility > bestUtility or (utility = bestUtility and random 2 = 1) [
+        set bestUtility utility
+        set bestComponent that
+      ]
     ]
   ]
   ask turtle bestComponent [
@@ -37,7 +40,63 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
     if technologyId != preferredTechnologyId [
       set misfits misfits + 1 
     ]
+    set choosenComponents remove who choosenComponents
+    let that who
+    foreach choosenComponents [
+      ask turtle ? [
+        create-link-with turtle that [
+          set color pink
+        ]
+      ]
+    ]
   ]
+end
+
+to-report chooseComponents
+  let loopCounter 0
+  let maxComponentValue getMaxComponentValue
+  let choosenComponents (list)
+  while [loopCounter < 5] [
+    let randomedValue randomWithProbability maxComponentValue
+    let found False
+    ask turtles with [value = randomedValue] [
+      set found True
+    ]
+    if found [
+      ask one-of turtles with [value >= randomedValue] [
+        if not member? who choosenComponents [
+          set choosenComponents lput who choosenComponents
+        ]
+      ]
+      set loopCounter loopCounter + 1
+    ]
+  ]
+  report choosenComponents
+end
+
+to-report getMaxComponentValue
+  let maxComponentValue 0
+  ask turtles [
+    if value > maxComponentValue [
+      set maxComponentValue value
+    ]
+  ]
+  report maxComponentValue
+end
+
+to-report randomWithProbability [maxValue]
+  let maxForRandom (maxValue * (maxValue + 1)) / 2 + 1
+  let randomNumber random maxForRandom
+  let stepValue maxValue
+  let startValue (maxValue * (maxValue + 1)) / 2
+  while [stepValue > 0] [
+    set startValue startValue - stepValue
+    if randomNumber > startValue [
+      report stepValue
+    ]
+    set stepValue stepValue - 1
+  ]
+  report 0
 end
 
 to setupPlotData
@@ -223,7 +282,7 @@ componentsQuantity
 componentsQuantity
 2
 100
-77
+8
 1
 1
 NIL
