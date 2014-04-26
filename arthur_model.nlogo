@@ -92,10 +92,12 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
     ]
     ask turtles-here with [technologyId = maxTechnologyId] [
       set value value + 1
+      set size value / 100; 
     ]
     ask neighbors4 [
       ask turtles-here with [technologyId = maxTechnologyId] [
         set value value + 1
+        set size value / 100; 
       ]
     ]
   ]
@@ -111,11 +113,13 @@ end
 
 ;; Adds a component to the current domain. The component will have technologyId equals to
 ;; componentTechnologyId param.
-to addComponentToDomain [componentTechnologyId] 
+to addComponentToDomain [componentTechnologyId sh] 
   ask turtle currNumComponents [
     setxy [pxcor] of myself [pycor] of myself
     set color ((item componentTechnologyId colorsList) + 1)
     set technologyId componentTechnologyId
+    set heading 180 * componentTechnologyId
+    set shape sh
   ]
   set currNumComponents currNumComponents + 1
 end
@@ -130,8 +134,8 @@ to trySelectDomainForSimulation
     set currNumDomains currNumDomains + 1
     set pcolor yellow
     ;; TODO: Do not assume that there are always two components per domain.
-    addComponentToDomain 0
-    addComponentToDomain 1
+    addComponentToDomain 0 "default"
+    addComponentToDomain 1 "default"
   ]
 end
 
@@ -159,6 +163,7 @@ to setup
     set activated false
     set technologyId -1
     set value 0
+    set size 0
   ]
   
   ;; Initialize components.
@@ -373,7 +378,7 @@ numDomains
 numDomains
 1
 50
-1
+28
 1
 1
 NIL
@@ -388,7 +393,7 @@ setupCost
 setupCost
 0
 10
-0
+0.5
 0.1
 1
 NIL
