@@ -41,6 +41,7 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
     if technologyId != preferredTechnologyId [
       set misfits misfits + 1 
     ]
+    set size 1 + value / 100
     set choosenComponents remove who choosenComponents
     let that who
     let thatTechnologyId technologyId
@@ -116,6 +117,7 @@ to make-node [thisTechnologyId old-node]
   let thisColor thisTechnologyId * 10 + 4
   crt 1
   [
+    set size 1
     set color thisColor
     set activated false
     set value 0
@@ -309,7 +311,7 @@ componentsQuantity
 componentsQuantity
 2
 100
-14
+31
 1
 1
 NIL
