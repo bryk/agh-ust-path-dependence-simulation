@@ -211,11 +211,11 @@ end
 GRAPHICS-WINDOW
 228
 10
-1078
-881
-10
-10
-40.0
+628
+431
+6
+6
+30.0
 1
 10
 1
@@ -225,10 +225,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--10
-10
--10
-10
+-6
+6
+-6
+6
 0
 0
 1
@@ -273,9 +273,9 @@ SLIDER
 ticksCount
 ticksCount
 0
-3000
-3000
-50
+5000
+1100
+100
 1
 NIL
 HORIZONTAL
@@ -330,10 +330,10 @@ NIL
 HORIZONTAL
 
 PLOT
-1082
-16
-1900
-403
+637
+10
+1455
+397
 Model statistics
 NIL
 NIL
@@ -350,10 +350,10 @@ PENS
 "Misfit ratio" 1.0 0 -5298144 true "" "ifelse ticks > 0 [plot missfits / ticks] [plot 0.5]"
 
 PLOT
-1082
-404
-1901
-693
+636
+400
+1455
+689
 Number of agents using technology
 NIL
 NIL
@@ -369,10 +369,10 @@ PENS
 "Technology B" 1.0 0 -10899396 true "" "plot item 1 adopters"
 
 MONITOR
-1089
-701
-1220
-746
+497
+439
+628
+484
 Num technology A
 item 0 adopters
 17
@@ -380,10 +380,10 @@ item 0 adopters
 11
 
 MONITOR
-1089
-754
-1221
-799
+497
+492
+629
+537
 Num technology B
 item 1 adopters
 17
