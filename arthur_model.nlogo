@@ -50,24 +50,12 @@ to updateDominatingTechnology [domain]
   ]
 end
 
-to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnologyId]
-  let domain one-of patches with [on = true] ;; Pick a domain at random.
-  
-  ;; Sum values of neighbour components.
-  let totalValues n-values numTechnologies [0]
-  ask domain [
-    set totalValues (updateTotalValuesForDomain totalValues)
-    ask neighbors4 [
-      set totalValues (updateTotalValuesForDomain totalValues)
-    ]
-  ]
-  
-  ;; Compute utility function.
-  let maxUtilityFun -10000
+to-report pickUpComponent [totalValues domain technologyPreferences agentNetworkInfluence]
+   ;; Compute utility function.
+  let maxUtilityFun -1000000
   let maxTechnologyId 0
   let currentTechnologyId 0
   foreach totalValues [
-    ;; TODO: Take setup cost into account.
     let hasActiveComponent false
     ask domain [
       ask turtles-here with [technologyId = currentTechnologyId and activated = true] [
@@ -84,6 +72,54 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
     ]  
     set currentTechnologyId currentTechnologyId + 1
   ]
+  
+  report maxTechnologyId
+end
+
+
+to-report pickUpComponentRandom [totalValues domain technologyPreferences agentNetworkInfluence]
+   ;; Compute utility function.
+  let currentTechnologyId 0
+  let utilityFuns []
+  let sumOfFuns 0
+  foreach totalValues [
+    let hasActiveComponent false
+    ask domain [
+      ask turtles-here with [technologyId = currentTechnologyId and activated = true] [
+        set hasActiveComponent true
+      ]
+    ]
+    let utilityFun ((item currentTechnologyId technologyPreferences) + agentNetworkInfluence * ?)
+    if not hasActiveComponent [
+      set utilityFun utilityFun - setupCost; 
+    ]
+    set utilityFuns lput utilityFun utilityFuns
+    set sumOfFuns sumOfFuns + utilityFun
+    set currentTechnologyId currentTechnologyId + 1
+  ]
+  let pos random-float sumOfFuns
+  let curPos 0
+  let t -1
+  while [curPos < pos] [
+     set t t + 1
+     set curPos curPos + (item t utilityFuns)
+  ]
+  report t
+end
+
+to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnologyId]
+  let domain one-of patches with [on = true] ;; Pick a domain at random.
+  
+  ;; Sum values of neighbour components.
+  let totalValues n-values numTechnologies [0]
+  ask domain [
+    set totalValues (updateTotalValuesForDomain totalValues)
+    ask neighbors4 [
+      set totalValues (updateTotalValuesForDomain totalValues)
+    ]
+  ]
+  
+  let maxTechnologyId (pickUpComponentRandom totalValues domain technologyPreferences agentNetworkInfluence)
   
   ;; Implement demand using selected component.
   ask domain [
@@ -238,7 +274,7 @@ ticksCount
 ticksCount
 0
 3000
-1000
+3000
 50
 1
 NIL
