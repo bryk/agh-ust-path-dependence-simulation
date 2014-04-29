@@ -1,5 +1,6 @@
 globals[misfits technologiesQuantity linkProbability firstTechnology secondTechnology]
 turtles-own [technologyId activated value] ;; Turtles - domain.
+links-own [linkTechnologyId]
 
 to go
   if ticks >= ticksCount [ stop ]
@@ -15,21 +16,24 @@ end
 to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnologyId]
   let bestComponent -1
   let bestUtility -1
-  ask turtles [
-    let thatTechnologyId technologyId
-    let that who
-    let utility 0
-    ask turtles with [technologyId = thatTechnologyId and who != that] [
-      set utility utility + w2 * value
-    ]
-    ask link-neighbors [
-      set utility utility + (w1 - w2) * value
-    ]
-    set utility utility * agentNetworkInfluence
-    set utility utility + (item thatTechnologyId technologyPreferences)
-    if utility > bestUtility or (utility = bestUtility and random 2 = 1) [
-      set bestUtility utility
-      set bestComponent that
+  let choosenComponents chooseComponents
+  foreach choosenComponents [
+    ask turtle ? [
+      let thatTechnologyId technologyId
+      let that who
+      let utility 0
+      ask turtles with [technologyId = thatTechnologyId and who != that] [
+        set utility utility + w2 * value
+      ]
+      ask link-neighbors [
+        set utility utility + (w1 - w2) * value
+      ]
+      set utility utility * agentNetworkInfluence
+      set utility utility + (item thatTechnologyId technologyPreferences)
+      if utility > bestUtility or (utility = bestUtility and random 2 = 1) [
+        set bestUtility utility
+        set bestComponent that
+      ]
     ]
   ]
   ask turtle bestComponent [
@@ -37,7 +41,67 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
     if technologyId != preferredTechnologyId [
       set misfits misfits + 1 
     ]
+    set size 1 + value / 100
+    set choosenComponents remove who choosenComponents
+    let that who
+    let thatTechnologyId technologyId
+    foreach choosenComponents [
+      ask turtle ? [
+        if thatTechnologyId = technologyId [
+          create-link-with turtle that [
+            set color pink
+          ]
+        ]
+      ]
+    ]
   ]
+end
+
+to-report chooseComponents
+  let loopCounter 0
+  let maxComponentValue getMaxComponentValue
+  let choosenComponents (list)
+  while [loopCounter < 5] [
+    let randomedValue randomWithProbability maxComponentValue
+    let found False
+    ask turtles with [value = randomedValue] [
+      set found True
+    ]
+    if found [
+      ask one-of turtles with [value >= randomedValue] [
+        if not member? who choosenComponents [
+          set choosenComponents lput who choosenComponents
+        ]
+      ]
+      set loopCounter loopCounter + 1
+    ]
+  ]
+  report choosenComponents
+end
+
+to-report getMaxComponentValue
+  let maxComponentValue 0
+  ask turtles [
+    if value > maxComponentValue [
+      set maxComponentValue value
+    ]
+  ]
+  report maxComponentValue
+end
+
+to-report randomWithProbability [maxValue]
+  let maxForRandom (maxValue * (maxValue + 1)) / 2 + 1
+  let randomNumber random maxForRandom
+  let stepValue maxValue
+  let startValue (maxValue * (maxValue + 1)) / 2
+  while [stepValue > 0] [
+    set startValue startValue - stepValue
+    if randomNumber > startValue [
+      report stepValue
+    ]
+    set stepValue stepValue - 1
+  ]
+  report 0
 end
 
 to setupPlotData
@@ -45,31 +109,55 @@ to setupPlotData
   set secondTechnology (sum [value] of turtles with [technologyId = 1])
 end
 
+to-report find-partner [technologyToConsider]
+  report [one-of both-ends] of one-of links with [linkTechnologyId = technologyToConsider]
+end
+
+to make-node [thisTechnologyId old-node]
+  let thisColor thisTechnologyId * 10 + 4
+  crt 1
+  [
+    set size 1
+    set color thisColor
+    set activated false
+    set value 0
+    set technologyId thisTechnologyId
+    if-else old-node != nobody [
+      create-link-with old-node [ 
+          set color thisColor 
+          set linkTechnologyId thisTechnologyId
+        ]
+        ;; position the new node near its partner
+        move-to old-node
+        fd 8
+      ][
+        setxy random-xcor random-ycor
+      ]
+  ]
+end
+
 to setup
   clear-all
   clear-all-plots
+  set-default-shape turtles "circle"
   set linkProbability 0.1   ;; can be set in GUI
   set technologiesQuantity 2
   set misfits 0
-  create-turtles componentsQuantity
-  ask turtles [
-    set activated false
-    set value 0
-    set technologyId random technologiesQuantity
-    setxy random-xcor random-ycor
-    set color technologyId * 10 + 4     ;; color number is calculated based on netologo colors matrix
+  
+  let technologiesToInitialize technologiesQuantity - 1
+  while [technologiesToInitialize >= 0] [
+    make-node technologiesToInitialize nobody        ;; first node, unattached
+    make-node technologiesToInitialize turtle (count turtles - 1)             ;; second node, linked with first
+    set technologiesToInitialize technologiesToInitialize - 1
   ]
-  ask turtles [
-    let that who
-    let thatTechnologyId technologyId
-    ask turtles with [technologyId = thatTechnologyId and who != that] [
-      if (random 1000) / 1000.0 < linkProbability [
-        create-link-with turtle that [
-          set color thatTechnologyId * 10 + 5
-        ]
-      ]
-    ]
+  
+  let componentsToCreate componentsQuantity - 2 * technologiesQuantity
+  while [componentsToCreate > 0] [
+    let thisTechnologyId random technologiesQuantity
+    make-node thisTechnologyId find-partner thisTechnologyId
+    set componentsToCreate componentsToCreate - 1
   ]
+ 
   reset-ticks
 end
 @#$#@#$#@
@@ -223,7 +311,7 @@ componentsQuantity
 componentsQuantity
 2
 100
-77
+31
 1
 1
 NIL
