@@ -4,17 +4,33 @@
 turtles-own [technologyId activated value]
 patches-own [on]
 
-globals[missfits currNumDomains currNumComponents adopters colorsList numTechnologies]
+globals[misfits currNumDomains currNumComponents adopters colorsList]
 to go
   if ticks >= ticksCount [ stop ]
-  ifelse random 2 = 1 [
-    ;; TODO: Do not hardcode ar as
-    genericAgent (list aR aS) networkInfluence 0
-  ] [
-    ;; TODO: Do not hardcode ar as
-    genericAgent (list aS aR) networkInfluence 1
+  let t (random numTechnologies)
+  let i 0
+  let prefs []
+  while [i < numTechnologies] [
+    ifelse i = t [
+      set prefs (lput preferredTechFactor prefs)
+    ] [
+      set prefs (lput otherTechFactor prefs)
+    ]
+    set i (i + 1)
   ]
+  genericAgent prefs networkInfluence t
   tick
+  set i 0
+  while [i < numTechnologies] [
+    let nam (word "t" i)
+    set-current-plot "stats"
+    set-current-plot-pen nam
+    plot (item i adopters) / ticks
+    set-current-plot "agents"
+    set-current-plot-pen nam
+    plot (item i adopters)
+    set i (i + 1)
+  ]
 end
 
 ;; Updates and returns the given totalValues list for the current domain.
@@ -146,7 +162,7 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
   ;; Update simulation statistics.
   set adopters replace-item maxTechnologyId adopters ((item maxTechnologyId adopters) + 1)
   if preferredTechnologyId != maxTechnologyId [
-    set missfits missfits + 1 
+    set misfits misfits + 1 
   ]
 end
 
@@ -157,7 +173,7 @@ to addComponentToDomain [componentTechnologyId sh]
     setxy [pxcor] of myself [pycor] of myself
     set color ((item componentTechnologyId colorsList) + 1)
     set technologyId componentTechnologyId
-    set heading 180 * componentTechnologyId
+    set heading 33 * componentTechnologyId
     set shape sh
   ]
   set currNumComponents currNumComponents + 1
@@ -172,9 +188,11 @@ to trySelectDomainForSimulation
   if currNumDomains < numDomains and pcolor = black [
     set currNumDomains currNumDomains + 1
     set pcolor yellow
-    ;; TODO: Do not assume that there are always two components per domain.
-    addComponentToDomain 0 "arrow"
-    addComponentToDomain 1 "arrow"
+    let i 0
+    while [i < numTechnologies] [
+      addComponentToDomain i "arrow"
+      set i (i + 1)
+    ]
   ]
 end
 
@@ -191,13 +209,27 @@ to setup
   clear-all
   clear-all-plots
   ask patches [set on false]
-  set numTechnologies 2 ;; TODO: Do not assume this.
   set adopters n-values numTechnologies [0]
-  set colorsList [blue green] ; technology 0 is blue and technology 1 is green
+  set colorsList []
+  let i 0
+  set-current-plot "stats"
+  while [i < numTechnologies] [
+    set colorsList lput (i * 10 + 5) colorsList
+    let nam (word "t" i)
+    set-current-plot "stats"
+    create-temporary-plot-pen nam
+    set-current-plot-pen nam
+    set-plot-pen-color item i colorsList
+    set-current-plot "agents"
+    create-temporary-plot-pen nam
+    set-current-plot-pen nam
+    set-plot-pen-color item i colorsList
+    set i (i + 1)
+  ]
   set currNumDomains 0
-  set missfits 0
+  set misfits 0
   
-  create-turtles numDomains * numComponentsPerDomain
+  create-turtles numDomains * numTechnologies
   ask turtles [
     set activated false
     set technologyId -1
@@ -237,36 +269,6 @@ GRAPHICS-WINDOW
 1
 ticks
 30.0
-
-SLIDER
-24
-45
-196
-78
-aR
-aR
-0.0
-1
-0.8
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-24
-91
-196
-124
-aS
-aS
-0
-1.0
-0.2
-0.1
-1
-NIL
-HORIZONTAL
 
 SLIDER
 24
@@ -337,7 +339,7 @@ PLOT
 10
 1455
 397
-Model statistics
+stats
 NIL
 NIL
 0.0
@@ -348,16 +350,14 @@ true
 true
 "" ""
 PENS
-"Technology A adoption" 1.0 0 -13345367 true "" "ifelse ticks > 0 [plot item 0 adopters / ticks] [plot 0.5]"
-"Technology B adoption" 1.0 0 -10899396 true "" "ifelse ticks > 0 [plot item 1 adopters / ticks] [plot 0.5]"
-"Misfit ratio" 1.0 0 -5298144 true "" "ifelse ticks > 0 [plot missfits / ticks] [plot 0.5]"
+"misfits" 1.0 0 -16777216 true "" "plot misfits / (ticks + 1)"
 
 PLOT
 636
 400
 1455
 689
-Number of agents using technology
+agents
 NIL
 NIL
 0.0
@@ -368,45 +368,6 @@ true
 true
 "" ""
 PENS
-"Technology A" 1.0 0 -13345367 true "" "plot item 0 adopters"
-"Technology B" 1.0 0 -10899396 true "" "plot item 1 adopters"
-
-MONITOR
-497
-439
-628
-484
-Num technology A
-item 0 adopters
-17
-1
-11
-
-MONITOR
-497
-492
-629
-537
-Num technology B
-item 1 adopters
-17
-1
-11
-
-SLIDER
-28
-274
-235
-307
-numComponentsPerDomain
-numComponentsPerDomain
-2
-100
-2
-1
-1
-NIL
-HORIZONTAL
 
 SLIDER
 27
@@ -417,7 +378,7 @@ numDomains
 numDomains
 1
 50
-12
+25
 1
 1
 NIL
@@ -445,9 +406,54 @@ SWITCH
 405
 isRandom
 isRandom
-0
+1
 1
 -1000
+
+SLIDER
+23
+55
+196
+88
+preferredTechFactor
+preferredTechFactor
+0
+3
+0.8
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+23
+95
+197
+128
+otherTechFactor
+otherTechFactor
+0
+2
+0.2
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+26
+276
+200
+309
+numTechnologies
+numTechnologies
+2
+10
+10
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
