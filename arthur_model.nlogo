@@ -118,9 +118,12 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
       set totalValues (updateTotalValuesForDomain totalValues)
     ]
   ]
-  
-  let maxTechnologyId (pickUpComponentRandom totalValues domain technologyPreferences agentNetworkInfluence)
-  
+  let maxTechnologyId -1
+  ifelse isRandom [
+    set maxTechnologyId (pickUpComponentRandom totalValues domain technologyPreferences agentNetworkInfluence)
+  ] [
+    set maxTechnologyId (pickUpComponent totalValues domain technologyPreferences agentNetworkInfluence)
+  ]
   ;; Implement demand using selected component.
   ask domain [
     ask one-of turtles-here with [technologyId = maxTechnologyId] [
@@ -128,12 +131,12 @@ to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnology
     ]
     ask turtles-here with [technologyId = maxTechnologyId] [
       set value value + 1
-      set size value / 100; 
+      set size value / 200; 
     ]
     ask neighbors4 [
       ask turtles-here with [technologyId = maxTechnologyId] [
         set value value + 1
-        set size value / 100; 
+        set size value / 200; 
       ]
     ]
   ]
@@ -170,8 +173,8 @@ to trySelectDomainForSimulation
     set currNumDomains currNumDomains + 1
     set pcolor yellow
     ;; TODO: Do not assume that there are always two components per domain.
-    addComponentToDomain 0 "default"
-    addComponentToDomain 1 "default"
+    addComponentToDomain 0 "arrow"
+    addComponentToDomain 1 "arrow"
   ]
 end
 
@@ -274,7 +277,7 @@ ticksCount
 ticksCount
 0
 5000
-1100
+1000
 100
 1
 NIL
@@ -414,7 +417,7 @@ numDomains
 numDomains
 1
 50
-28
+12
 1
 1
 NIL
@@ -429,11 +432,22 @@ setupCost
 setupCost
 0
 10
-0.5
+0
 0.1
 1
 NIL
 HORIZONTAL
+
+SWITCH
+29
+372
+156
+405
+isRandom
+isRandom
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
