@@ -14,94 +14,70 @@ to go
 end
 
 to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnologyId]
-  let bestComponent -1
-  let bestUtility -1
-  let choosenComponents chooseComponents
-  foreach choosenComponents [
-    ask turtle ? [
-      let thatTechnologyId technologyId
-      let that who
-      let utility 0
-      ask turtles with [technologyId = thatTechnologyId and who != that] [
-        set utility utility + w2 * value
-      ]
-      ask link-neighbors [
-        set utility utility + (w1 - w2) * value
-      ]
-      set utility utility * agentNetworkInfluence
-      set utility utility + (item thatTechnologyId technologyPreferences)
-      if utility > bestUtility or (utility = bestUtility and random 2 = 1) [
-        set bestUtility utility
-        set bestComponent that
-      ]
-    ]
+  let choosenComponent -1
+  if-else randomize [
+    set choosenComponent choosePreferredComponent agentNetworkInfluence technologyPreferences
+  ] [
+    set choosenComponent chooseComponent agentNetworkInfluence technologyPreferences
   ]
-  ask turtle bestComponent [
+  ask turtle choosenComponent [
     set value value + 1
     if technologyId != preferredTechnologyId [
       set misfits misfits + 1 
     ]
     set size 1 + value / 100
-    set choosenComponents remove who choosenComponents
-    let that who
-    let thatTechnologyId technologyId
-    foreach choosenComponents [
-      ask turtle ? [
-        if thatTechnologyId = technologyId [
-          create-link-with turtle that [
-            set color pink
-          ]
-        ]
-      ]
-    ]
   ]
 end
 
-to-report chooseComponents
-  let loopCounter 0
-  let maxComponentValue getMaxComponentValue
-  let choosenComponents (list)
-  while [loopCounter < 5] [
-    let randomedValue randomWithProbability maxComponentValue
-    let found False
-    ask turtles with [value = randomedValue] [
-      set found True
-    ]
-    if found [
-      ask one-of turtles with [value >= randomedValue] [
-        if not member? who choosenComponents [
-          set choosenComponents lput who choosenComponents
-        ]
-      ]
-      set loopCounter loopCounter + 1
+to-report chooseComponent [agentNetworkInfluence technologyPreferences]
+  let bestComponent -1
+  let bestUtility -1
+  ask turtles [   
+    let utility utilityFunction technologyId who technologyPreferences agentNetworkInfluence
+    if utility > bestUtility or (utility = bestUtility and random 2 = 1) [
+      set bestUtility utility
+      set bestComponent who
     ]
   ]
-  report choosenComponents
+  report bestComponent
 end
 
-to-report getMaxComponentValue
-  let maxComponentValue 0
-  ask turtles [
-    if value > maxComponentValue [
-      set maxComponentValue value
+to-report choosePreferredComponent [agentNetworkInfluence technologyPreferences]
+  let utilityFuns []
+  let utilitiesSum 0
+  foreach sort-on [who] turtles [
+    ask ? [
+      let utilityFunctionVal utilityFunction technologyId who technologyPreferences agentNetworkInfluence
+      set utilityFuns lput utilityFunctionVal utilityFuns
+      set utilitiesSum utilitiesSum + utilityFunctionVal
     ]
   ]
-  report maxComponentValue
+  let preferredValue random-float utilitiesSum
+  let component 0
+  let bestComponent 0
+  let maxDifference utilitiesSum + 1.0
+  foreach utilityFuns [
+    let diff abs (? - preferredValue)
+    if diff < maxDifference or (diff = maxDifference and random 2 = 1) [
+      set maxDifference diff
+      set bestComponent component 
+    ]
+    set component component + 1
+  ]
+  report bestComponent
 end
 
-to-report randomWithProbability [maxValue]
-  let maxForRandom (maxValue * (maxValue + 1)) / 2 + 1
-  let randomNumber random maxForRandom
-  let stepValue maxValue
-  let startValue (maxValue * (maxValue + 1)) / 2
-  while [stepValue > 0] [
-    set startValue startValue - stepValue
-    if randomNumber > startValue [
-      report stepValue
-    ]
-    set stepValue stepValue - 1
+to-report utilityFunction [thatTechnologyId that technologyPreferences agentNetworkInfluence]
+  let utility 0
+  ask turtles with [technologyId = thatTechnologyId and who != that] [
+    set utility utility + w2 * value
   ]
-  report 0
+  ask link-neighbors [
+    set utility utility + (w1 - w2) * value
+  ]
+  set utility utility * agentNetworkInfluence
+  set utility utility + (item thatTechnologyId technologyPreferences)
+  report utility
 end
 
 to setupPlotData
@@ -143,7 +119,7 @@ to setup
   set linkProbability 0.1   ;; can be set in GUI
   set technologiesQuantity 2
   set misfits 0
-  
+
   let technologiesToInitialize technologiesQuantity - 1
   while [technologiesToInitialize >= 0] [
     make-node technologiesToInitialize nobody        ;; first node, unattached
@@ -227,7 +203,7 @@ ticksCount
 ticksCount
 0
 5000
-1000
+1115
 1
 1
 NIL
@@ -311,7 +287,7 @@ componentsQuantity
 componentsQuantity
 2
 100
-31
+9
 1
 1
 NIL
@@ -346,6 +322,17 @@ w2
 1
 NIL
 HORIZONTAL
+
+SWITCH
+54
+445
+185
+478
+randomize
+randomize
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
