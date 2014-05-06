@@ -1,14 +1,11 @@
-globals[misfits technologiesQuantity linkProbability firstTechnology secondTechnology]
+globals[misfits linkProbability firstTechnology secondTechnology preferencesLists plotData plotColors]
 turtles-own [technologyId activated value] ;; Turtles - domain.
 links-own [linkTechnologyId]
 
 to go
   if ticks >= ticksCount [ stop ]
-  ifelse random 2 = 1 [
-    genericAgent (list aR aS) rs 0
-  ] [
-    genericAgent (list aS aR) rs 1
-  ]
+  let technology random technologiesQuantity
+  genericAgent (item technology preferencesLists) rs technology
   setupPlotData
   tick
 end
@@ -83,6 +80,12 @@ end
 to setupPlotData
   set firstTechnology (sum [value] of turtles with [technologyId = 0])
   set secondTechnology (sum [value] of turtles with [technologyId = 1])
+  set plotData []
+  set plotColors []
+  foreach n-values 10 [?] [
+    set plotData lput (sum [value] of turtles with [technologyId = ?]) plotData
+    set plotColors lput (? * 10 + 4) plotColors
+  ]
 end
 
 to-report find-partner [technologyToConsider]
@@ -112,14 +115,22 @@ to make-node [thisTechnologyId old-node]
   ]
 end
 
+to initPreferencesList
+  set preferencesLists []
+  foreach n-values technologiesQuantity [?] [
+    let nthPreferenceList n-values technologiesQuantity [aS]
+    set nthPreferenceList replace-item ? nthPreferenceList aR
+    set preferencesLists lput nthPreferenceList preferencesLists
+  ]
+end
+
 to setup
   clear-all
   clear-all-plots
   set-default-shape turtles "circle"
-  set linkProbability 0.1   ;; can be set in GUI
-  set technologiesQuantity 2
   set misfits 0
 
+  initPreferencesList
   let technologiesToInitialize technologiesQuantity - 1
   while [technologiesToInitialize >= 0] [
     make-node technologiesToInitialize nobody        ;; first node, unattached
@@ -203,17 +214,17 @@ ticksCount
 ticksCount
 0
 5000
-1115
+3503
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-134
-375
-197
-408
+145
+484
+208
+517
 NIL
 go
 T
@@ -227,10 +238,10 @@ NIL
 0
 
 BUTTON
-46
-374
-119
-407
+67
+483
+140
+516
 NIL
 setup
 NIL
@@ -274,9 +285,17 @@ true
 true
 "" ""
 PENS
-"techA" 1.0 0 -9276814 true "" "ifelse ticks > 0 [plot firstTechnology / ticks] [plot 0.5]"
-"techB" 1.0 0 -5298144 true "" "ifelse ticks > 0 [plot secondTechnology / ticks] [plot 0.5]"
+"techA" 1.0 0 -9276814 true "" "ifelse ticks > 0 [plot (item 0 plotData) / ticks] [plot 0.5]"
+"techB" 1.0 0 -5298144 true "" "ifelse ticks > 0 [plot (item 1 plotData) / ticks] [plot 0.5]"
 "Misfits" 1.0 0 -1184463 true "" "ifelse ticks > 0 [plot misfits / ticks] [plot 0.5]"
+"pen-3" 1.0 0 -3844592 true "" "ifelse ticks > 0 [plot (item 2 plotData) / ticks] [plot 0.5]"
+"pen-4" 1.0 0 -8431303 true "" "ifelse ticks > 0 [plot (item 3 plotData) / ticks] [plot 0.5]"
+"pen-5" 1.0 0 -4079321 true "" "ifelse ticks > 0 [plot (item 4 plotData) / ticks] [plot 0.5]"
+"pen-6" 1.0 0 -12087248 true "" "ifelse ticks > 0 [plot (item 5 plotData) / ticks] [plot 0.5]"
+"pen-7" 1.0 0 -14439633 true "" "ifelse ticks > 0 [plot (item 6 plotData) / ticks] [plot 0.5]"
+"pen-8" 1.0 0 -15302303 true "" "ifelse ticks > 0 [plot (item 7 plotData) / ticks] [plot 0.5]"
+"pen-9" 1.0 0 -12345184 true "" "ifelse ticks > 0 [plot (item 8 plotData) / ticks] [plot 0.5]"
+"pen-10" 1.0 0 -14454117 true "" "ifelse ticks > 0 [plot (item 9 plotData) / ticks] [plot 0.5]"
 
 SLIDER
 -2
@@ -287,7 +306,7 @@ componentsQuantity
 componentsQuantity
 2
 100
-9
+20
 1
 1
 NIL
@@ -324,15 +343,30 @@ NIL
 HORIZONTAL
 
 SWITCH
-54
-445
-185
-478
+75
+432
+206
+465
 randomize
 randomize
 0
 1
 -1000
+
+SLIDER
+6
+375
+207
+408
+technologiesQuantity
+technologiesQuantity
+2
+10
+4
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
