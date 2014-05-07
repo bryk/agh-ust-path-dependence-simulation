@@ -214,7 +214,7 @@ ticksCount
 ticksCount
 0
 5000
-3503
+2038
 1
 1
 NIL
@@ -306,7 +306,7 @@ componentsQuantity
 componentsQuantity
 2
 100
-20
+69
 1
 1
 NIL
@@ -321,8 +321,8 @@ w1
 w1
 0
 1
-1
 0.5
+0.1
 1
 NIL
 HORIZONTAL
@@ -336,8 +336,8 @@ w2
 w2
 0
 1
-0.5
-0.5
+0.1
+0.1
 1
 NIL
 HORIZONTAL
@@ -362,7 +362,7 @@ technologiesQuantity
 technologiesQuantity
 2
 10
-4
+8
 1
 1
 NIL
