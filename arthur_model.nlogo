@@ -10,15 +10,26 @@ to go
   let t (random numTechnologies)
   let i 0
   let prefs []
+  let len 0
   while [i < numTechnologies] [
     ifelse i = t [
-      set prefs (lput preferredTechFactor prefs)
+      set prefs (lput preferredMinusOtherTech prefs)
+      set len (len + (preferredMinusOtherTech * preferredMinusOtherTech))
     ] [
-      set prefs (lput otherTechFactor prefs)
+      set prefs (lput (1 - preferredMinusOtherTech) prefs)
+      set len (len + ((1 - preferredMinusOtherTech) * (1 - preferredMinusOtherTech)))
     ]
     set i (i + 1)
   ]
-  genericAgent prefs networkInfluence t
+  
+  set len sqrt len
+  set i 0
+  while [i < numTechnologies] [
+    set prefs replace-item i prefs (((item i prefs) / len) * (sqrt preferencesMinusNetwork))
+    set i (i + 1)
+  ]
+  
+  genericAgent prefs ((1 - preferencesMinusNetwork)) t
   tick
   set i 0
   while [i < numTechnologies] [
@@ -271,10 +282,10 @@ ticks
 30.0
 
 SLIDER
-24
-133
-196
-166
+25
+179
+197
+212
 ticksCount
 ticksCount
 0
@@ -318,21 +329,6 @@ NIL
 NIL
 NIL
 1
-
-SLIDER
-24
-178
-199
-211
-networkInfluence
-networkInfluence
-0
-1
-0.1
-0.1
-1
-NIL
-HORIZONTAL
 
 PLOT
 637
@@ -411,36 +407,6 @@ isRandom
 -1000
 
 SLIDER
-23
-55
-196
-88
-preferredTechFactor
-preferredTechFactor
-0
-3
-0.8
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-23
-95
-197
-128
-otherTechFactor
-otherTechFactor
-0
-2
-0.2
-0.1
-1
-NIL
-HORIZONTAL
-
-SLIDER
 26
 276
 200
@@ -449,8 +415,38 @@ numTechnologies
 numTechnologies
 2
 10
-10
+3
 1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+8
+86
+223
+119
+preferencesMinusNetwork
+preferencesMinusNetwork
+0
+1
+0.8
+0.05
+1
+NIL
+HORIZONTAL
+
+SLIDER
+7
+133
+224
+166
+preferredMinusOtherTech
+preferredMinusOtherTech
+0
+1
+0.8
+0.05
 1
 NIL
 HORIZONTAL
