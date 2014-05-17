@@ -5,7 +5,7 @@ links-own [linkTechnologyId]
 to go
   if ticks >= ticksCount [ stop ]
   let technology random technologiesQuantity
-  genericAgent (item technology preferencesLists) rs technology
+  genericAgent (item technology preferencesLists) (1.0 - preferencesMinusNetwork) technology
   setupPlotData
   tick
 end
@@ -120,9 +120,10 @@ end
 
 to initPreferencesList
   set preferencesLists []
+  let sumOfTechPreferences ((technologiesQuantity - 1) * (1.0 - preferredMinusOtherTech) + preferredMinusOtherTech)
   foreach n-values technologiesQuantity [?] [
-    let nthPreferenceList n-values technologiesQuantity [aS]
-    set nthPreferenceList replace-item ? nthPreferenceList aR
+    let nthPreferenceList n-values technologiesQuantity [((1.0 - preferredMinusOtherTech) * (1.0 - preferredMinusOtherTech)) * sqrt(preferencesMinusNetwork)]
+    set nthPreferenceList replace-item ? nthPreferenceList ((preferredMinusOtherTech * preferredMinusOtherTech) * sqrt(preferencesMinusNetwork))
     set preferencesLists lput nthPreferenceList preferencesLists
   ]
 end
@@ -181,10 +182,10 @@ ticks
 SLIDER
 28
 38
-200
+264
 71
-aR
-aR
+preferredMinusOtherTech
+preferredMinusOtherTech
 0.5
 1
 0.8
@@ -196,13 +197,13 @@ HORIZONTAL
 SLIDER
 29
 88
-201
+269
 121
-aS
-aS
+preferencesMinusNetwork
+preferencesMinusNetwork
 0
-0.5
-0.2
+1
+0.8
 0.1
 1
 NIL
@@ -257,21 +258,6 @@ NIL
 NIL
 1
 
-SLIDER
-29
-183
-201
-216
-rs
-rs
-0
-1
-0.1
-0.1
-1
-NIL
-HORIZONTAL
-
 PLOT
 892
 10
@@ -309,7 +295,7 @@ componentsQuantity
 componentsQuantity
 2
 100
-100
+40
 1
 1
 NIL
@@ -365,7 +351,7 @@ technologiesQuantity
 technologiesQuantity
 2
 10
-3
+6
 1
 1
 NIL
@@ -380,7 +366,7 @@ randomizationLevel
 randomizationLevel
 0
 1.0
-0.66
+0.43
 0.01
 1
 NIL
