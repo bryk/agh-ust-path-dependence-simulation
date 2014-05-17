@@ -41,18 +41,21 @@ end
 
 to-report choosePreferredComponent [agentNetworkInfluence technologyPreferences]
   let utilityFuns []
-  let utilitiesSum 0
+  let utilitiesMax 0
   foreach sort-on [who] turtles [
     ask ? [
       let utilityFunctionVal utilityFunction technologyId who technologyPreferences agentNetworkInfluence
       set utilityFuns lput utilityFunctionVal utilityFuns
-      set utilitiesSum utilitiesSum + utilityFunctionVal
+      if utilityFunctionVal > utilitiesMax [
+        set utilitiesMax utilityFunctionVal
+      ]
     ]
   ]
-  let preferredValue random-float utilitiesSum
+  let randomBound utilitiesMax * (2.0 - randomizationLevel)
+  let preferredValue random-float randomBound
   let component 0
   let bestComponent 0
-  let maxDifference utilitiesSum + 1.0
+  let maxDifference randomBound + 1.0
   foreach utilityFuns [
     let diff abs (? - preferredValue)
     if diff < maxDifference or (diff = maxDifference and random 2 = 1) [
@@ -214,17 +217,17 @@ ticksCount
 ticksCount
 0
 5000
-2038
+2006
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-145
-484
-208
-517
+144
+512
+207
+545
 NIL
 go
 T
@@ -238,10 +241,10 @@ NIL
 0
 
 BUTTON
-67
-483
-140
-516
+64
+512
+137
+545
 NIL
 setup
 NIL
@@ -306,7 +309,7 @@ componentsQuantity
 componentsQuantity
 2
 100
-69
+100
 1
 1
 NIL
@@ -321,7 +324,7 @@ w1
 w1
 0
 1
-0.5
+1
 0.1
 1
 NIL
@@ -336,17 +339,17 @@ w2
 w2
 0
 1
-0.1
+0.5
 0.1
 1
 NIL
 HORIZONTAL
 
 SWITCH
-75
-432
-206
-465
+77
+421
+208
+454
 randomize
 randomize
 0
@@ -362,8 +365,23 @@ technologiesQuantity
 technologiesQuantity
 2
 10
-8
+3
 1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+9
+469
+207
+502
+randomizationLevel
+randomizationLevel
+0
+1.0
+0.66
+0.01
 1
 NIL
 HORIZONTAL
