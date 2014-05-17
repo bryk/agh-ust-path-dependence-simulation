@@ -60,7 +60,7 @@ to-report choosePreferredComponent [agentNetworkInfluence technologyPreferences]
     let diff abs (? - preferredValue)
     if diff < maxDifference or (diff = maxDifference and random 2 = 1) [
       set maxDifference diff
-      set bestComponent component 
+      set bestComponent component
     ]
     set component component + 1
   ]
@@ -72,8 +72,10 @@ to-report utilityFunction [thatTechnologyId that technologyPreferences agentNetw
   ask turtles with [technologyId = thatTechnologyId and who != that] [
     set utility utility + w2 * value
   ]
-  ask link-neighbors [
-    set utility utility + (w1 - w2) * value
+  ask turtle that [
+    ask link-neighbors [
+      set utility utility + (w1 - w2) * value
+    ]
   ]
   set utility utility * agentNetworkInfluence
   set utility utility + (item thatTechnologyId technologyPreferences)
@@ -218,7 +220,7 @@ ticksCount
 ticksCount
 0
 5000
-2006
+1529
 1
 1
 NIL
@@ -295,7 +297,7 @@ componentsQuantity
 componentsQuantity
 2
 100
-40
+46
 1
 1
 NIL
@@ -351,7 +353,7 @@ technologiesQuantity
 technologiesQuantity
 2
 10
-6
+3
 1
 1
 NIL
@@ -366,7 +368,7 @@ randomizationLevel
 randomizationLevel
 0
 1.0
-0.43
+0
 0.01
 1
 NIL
