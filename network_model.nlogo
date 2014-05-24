@@ -1,15 +1,30 @@
-globals[misfits linkProbability firstTechnology secondTechnology preferencesLists plotData plotColors]
+globals[misfits linkProbability firstTechnology secondTechnology preferencesLists plotData plotColors finalResults fr1 fr2 fr3 FINISH]
 turtles-own [technologyId activated value] ;; Turtles - domain.
 links-own [linkTechnologyId]
 
 to go
-  if ticks >= ticksCount [ stop ]
+  if ticks >= ticksCount [ 
+    computeFinalResults
+    set FINISH true
+    stop 
+  ]
   let technology random technologiesQuantity
   genericAgent (item technology preferencesLists) (1.0 - preferencesMinusNetwork) technology
   setupPlotData
   tick
 end
 
+to computeFinalResults
+  setupPlotData
+  set finalResults []
+  foreach plotData [
+    set finalResults lput (? / ticksCount) finalResults
+  ]
+  set finalResults sort-by > finalResults
+  ;;set fr1 item 0 finalResults
+  ;;set fr2 item 1 finalResults
+  ;;set fr3 item 2 finalResults
+end
 to genericAgent [technologyPreferences agentNetworkInfluence preferredTechnologyId]
   let choosenComponent -1
   if-else randomize [
@@ -131,6 +146,7 @@ to initPreferencesList
 end
 
 to setup
+  set FINISH false
   clear-all
   clear-all-plots
   set-default-shape turtles "circle"
@@ -220,7 +236,7 @@ ticksCount
 ticksCount
 0
 5000
-1529
+1200
 1
 1
 NIL
@@ -297,7 +313,7 @@ componentsQuantity
 componentsQuantity
 2
 100
-46
+90
 1
 1
 NIL
@@ -340,7 +356,7 @@ SWITCH
 454
 randomize
 randomize
-0
+1
 1
 -1000
 
@@ -353,7 +369,7 @@ technologiesQuantity
 technologiesQuantity
 2
 10
-3
+10
 1
 1
 NIL
@@ -368,7 +384,7 @@ randomizationLevel
 randomizationLevel
 0
 1.0
-0
+0.3
 0.01
 1
 NIL
@@ -721,6 +737,172 @@ NetLogo 5.0.5
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="two-techs" repetitions="6" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>FINISH = true</exitCondition>
+    <metric>item 0 finalResults</metric>
+    <metric>item 1 finalResults</metric>
+    <enumeratedValueSet variable="preferredMinusOtherTech">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="w2">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preferencesMinusNetwork">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="w1">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="randomizationLevel">
+      <value value="0.1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ticksCount">
+      <value value="1200"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="randomize">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="technologiesQuantity">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="componentsQuantity">
+      <value value="4"/>
+      <value value="8"/>
+      <value value="14"/>
+      <value value="20"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="three-techs" repetitions="6" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>FINISH = true</exitCondition>
+    <metric>item 0 finalResults</metric>
+    <metric>item 1 finalResults</metric>
+    <metric>item 2 finalResults</metric>
+    <enumeratedValueSet variable="preferredMinusOtherTech">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="w2">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preferencesMinusNetwork">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="w1">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="randomizationLevel">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ticksCount">
+      <value value="1200"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="randomize">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="technologiesQuantity">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="componentsQuantity">
+      <value value="6"/>
+      <value value="12"/>
+      <value value="25"/>
+      <value value="50"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="five-techs" repetitions="6" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>FINISH = true</exitCondition>
+    <metric>item 0 finalResults</metric>
+    <metric>item 1 finalResults</metric>
+    <metric>item 2 finalResults</metric>
+    <metric>item 3 finalResults</metric>
+    <metric>item 4 finalResults</metric>
+    <enumeratedValueSet variable="preferredMinusOtherTech">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="w2">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preferencesMinusNetwork">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="w1">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="randomizationLevel">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ticksCount">
+      <value value="1200"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="randomize">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="technologiesQuantity">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="componentsQuantity">
+      <value value="10"/>
+      <value value="20"/>
+      <value value="40"/>
+      <value value="60"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="ten-techs" repetitions="6" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <exitCondition>FINISH = true</exitCondition>
+    <metric>item 0 finalResults</metric>
+    <metric>item 1 finalResults</metric>
+    <metric>item 2 finalResults</metric>
+    <metric>item 3 finalResults</metric>
+    <metric>item 4 finalResults</metric>
+    <metric>item 5 finalResults</metric>
+    <metric>item 6 finalResults</metric>
+    <metric>item 7 finalResults</metric>
+    <metric>item 8 finalResults</metric>
+    <metric>item 9 finalResults</metric>
+    <enumeratedValueSet variable="preferredMinusOtherTech">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="w2">
+      <value value="0.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preferencesMinusNetwork">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="w1">
+      <value value="1"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="randomizationLevel">
+      <value value="0.3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ticksCount">
+      <value value="1200"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="randomize">
+      <value value="true"/>
+      <value value="false"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="technologiesQuantity">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="componentsQuantity">
+      <value value="20"/>
+      <value value="40"/>
+      <value value="65"/>
+      <value value="90"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
