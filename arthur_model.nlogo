@@ -374,7 +374,7 @@ numDomains
 numDomains
 1
 50
-25
+50
 1
 1
 NIL
@@ -402,7 +402,7 @@ SWITCH
 405
 isRandom
 isRandom
-1
+0
 1
 -1000
 
@@ -415,7 +415,7 @@ numTechnologies
 numTechnologies
 2
 10
-3
+2
 1
 1
 NIL
@@ -798,6 +798,156 @@ NetLogo 5.0.5
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="two-techs" repetitions="20" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>misfits</metric>
+    <metric>item 0 adopters</metric>
+    <metric>item 1 adopters</metric>
+    <enumeratedValueSet variable="numTechnologies">
+      <value value="2"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="isRandom">
+      <value value="false"/>
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="numDomains">
+      <value value="1"/>
+      <value value="2"/>
+      <value value="5"/>
+      <value value="10"/>
+      <value value="25"/>
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preferencesMinusNetwork">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="setupCost">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ticksCount">
+      <value value="1000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preferredMinusOtherTech">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="five-techs" repetitions="20" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>misfits</metric>
+    <metric>item 0 adopters</metric>
+    <metric>item 1 adopters</metric>
+    <metric>item 2 adopters</metric>
+    <metric>item 3 adopters</metric>
+    <metric>item 4 adopters</metric>
+    <enumeratedValueSet variable="numTechnologies">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="isRandom">
+      <value value="false"/>
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="numDomains">
+      <value value="1"/>
+      <value value="2"/>
+      <value value="5"/>
+      <value value="10"/>
+      <value value="25"/>
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preferencesMinusNetwork">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="setupCost">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ticksCount">
+      <value value="1000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preferredMinusOtherTech">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="three-techs" repetitions="20" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>misfits</metric>
+    <metric>item 0 adopters</metric>
+    <metric>item 1 adopters</metric>
+    <metric>item 2 adopters</metric>
+    <enumeratedValueSet variable="numTechnologies">
+      <value value="3"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="isRandom">
+      <value value="false"/>
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="numDomains">
+      <value value="1"/>
+      <value value="2"/>
+      <value value="5"/>
+      <value value="10"/>
+      <value value="25"/>
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preferencesMinusNetwork">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="setupCost">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ticksCount">
+      <value value="1000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preferredMinusOtherTech">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="ten-techs" repetitions="20" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>misfits</metric>
+    <metric>item 0 adopters</metric>
+    <metric>item 1 adopters</metric>
+    <metric>item 2 adopters</metric>
+    <metric>item 3 adopters</metric>
+    <metric>item 4 adopters</metric>
+    <metric>item 5 adopters</metric>
+    <metric>item 6 adopters</metric>
+    <metric>item 7 adopters</metric>
+    <metric>item 8 adopters</metric>
+    <metric>item 9 adopters</metric>
+    <enumeratedValueSet variable="numTechnologies">
+      <value value="10"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="isRandom">
+      <value value="false"/>
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="numDomains">
+      <value value="1"/>
+      <value value="2"/>
+      <value value="5"/>
+      <value value="10"/>
+      <value value="25"/>
+      <value value="50"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preferencesMinusNetwork">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="setupCost">
+      <value value="0"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="ticksCount">
+      <value value="1000"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="preferredMinusOtherTech">
+      <value value="0.8"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
